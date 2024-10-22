@@ -111,7 +111,7 @@ function createMain() {
     mainWin = new BrowserWindow({
         width: parseInt(appConfig.customResolution.split('x')[0]),
         height: parseInt(appConfig.customResolution.split('x')[1]),
-        minWidth: 400,
+        minWidth: 1280,
         minHeight: 400,
         frame: false,
         show: false,
@@ -123,7 +123,7 @@ function createMain() {
         },
     });
 
-    mainWin.loadURL("file://" + path.join(path.dirname(__dirname), "src/views/game.html"));
+    mainWin.loadURL(`file://${path.join(path.dirname(__dirname), "src/views/game.html")}?game=${appConfig.defaultGame}`);
 
     log('INFO', 'Main window loaded!');
 }
@@ -131,14 +131,15 @@ function createMain() {
 function createUpdate() {
     log('INFO', 'Creating update window');
     updateWin = new BrowserWindow({
-        width: 320,
-        height: 380,
-        minWidth: 320,
-        minHeight: 380,
+        width: 450,
+        height: 350,
+        minWidth: 450,
+        minHeight: 350,
         fileUrl: 'app/src/views/update.html',
         frame: false,
         show: false,
         alwaysOnTop: true,
+        transparent: true,
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
@@ -212,6 +213,10 @@ app.on('window-all-closed', () => {
         app.quit();
         log('INFO', 'App closed');
     }
+});
+
+ipcMain.on('loadGame', (event, gameName) => {
+    mainWin.loadURL(`file://${path.join(path.dirname(__dirname), "src/views/game.html")}?game=${gameName}`);
 });
 
 ipcMain.on('downloadUpdate', (event) => {
