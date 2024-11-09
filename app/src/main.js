@@ -5,13 +5,11 @@ const path = require("path");
 autoUpdater.autoDownload = false // If auto update set to true -> set to true
 autoUpdater.autoInstallOnAppQuit = true
 autoUpdater.autoRunAppAfterInstall = true
-autoUpdater.auto
 
-const { appConfig } = require('../src/scripts/settings');
-
+const { appConfig } = require('../src/utils/settings')
 //const { updateStatus } = require('./scripts/updater')
 const { initDiscordRichPresence, removeDiscordRichPresence } = require('../src/integrations/discord');
-const { loadThemes } = require('../src/scripts/themer');
+const { loadThemes } = require('../src/utils/themer');
 
 loadThemes();
 
@@ -79,12 +77,23 @@ function createSplash() {
 
     splashWin.loadURL("file://" + path.join(path.dirname(__dirname), "src/views/splash.html"));
     log('INFO', 'Splash screen created!');
+
+    const width = parseInt(appConfig.customResolution.split('x')[0])
+    const height = parseInt(appConfig.customResolution.split('x')[1])
+
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+
     if (!appConfig.fasterSplash) {
         log('INFO', 'Splash screen duration: 5000ms');
         setTimeout(() => {
             splashWin.close();
             log('INFO', 'Splash screen closed');
             mainWin.show();
+        
+            if (width >= screenWidth || height >= screenHeight) {
+                mainWin.maximize();
+            };
+
             log('INFO', 'Main window show');
             mainWin.focus();
             if (appConfig.startMaximized) {
@@ -97,6 +106,11 @@ function createSplash() {
             splashWin.close();
             log('INFO', 'Splash screen closed');
             mainWin.show();
+
+            if (width >= screenWidth || height >= screenHeight) {
+                mainWin.maximize();
+            };
+            
             log('INFO', 'Main window show');
             mainWin.focus();
             if (appConfig.startMaximized) {
@@ -108,11 +122,14 @@ function createSplash() {
 
 function createMain() {
     log('INFO', 'Creating main window');
+    const width = parseInt(appConfig.customResolution.split('x')[0])
+    const height = parseInt(appConfig.customResolution.split('x')[1])
+
     mainWin = new BrowserWindow({
-        width: parseInt(appConfig.customResolution.split('x')[0]),
-        height: parseInt(appConfig.customResolution.split('x')[1]),
-        minWidth: 1280,
-        minHeight: 400,
+        width: width,
+        height: height,
+        minWidth: 800,
+        minHeight: 600,
         frame: false,
         show: false,
         webPreferences: {
@@ -174,6 +191,16 @@ app.whenReady().then(() => {
     if (!appConfig.enableSplash) {
         setTimeout(() => {
             mainWin.show();
+
+            const width = parseInt(appConfig.customResolution.split('x')[0])
+            const height = parseInt(appConfig.customResolution.split('x')[1])
+        
+            const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+        
+            if (width >= screenWidth || height >= screenHeight) {
+                mainWin.maximize();
+            };
+            
             log('INFO', 'Main window show');
             mainWin.focus();
             if (appConfig.startMaximized) {
@@ -181,12 +208,6 @@ app.whenReady().then(() => {
             };
         }, 200);
     };
-
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
-        }
-    });
 
     if (appConfig.checkUpdates) {
         log('INFO', 'Checking for updates');
@@ -329,6 +350,30 @@ ipcMain.on('update-discord-changed', (event, enabled) => {
 
 ipcMain.on('show-info-box', (event, message) => {
     childWindow.webContents.send('show-info-box', message);
+});
+
+ipcMain.on('resizeMainWindow', (event, newResolution) => {
+    const resolution = newResolution.resolution;
+    const width = parseInt(resolution.split('x')[0]);
+    const height = parseInt(resolution.split('x')[1]);
+
+    const mainWinBounds = mainWin.getBounds();
+    const x = mainWinBounds.x;
+    const y = mainWinBounds.y;
+
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+
+    if (width >= screenWidth || height >= screenHeight) {
+        mainWin.maximize();
+    } else {
+        if (mainWin.isMaximized()) {
+            mainWin.restore();
+        }
+        mainWin.setSize(width, height);
+        mainWin.setPosition(x, y);
+    }
+
+    log("INFO", "Resolution got changed!");
 });
 
 

@@ -7,44 +7,44 @@ const { initDiscordRichPresence, removeDiscordRichPresence } = require('../integ
 
 const resolutions = {
     // 4:3
-    a: '640x480',
-    b: '800x600',
-    c: '960x720',
-    d: '1024x768',
-    e: '1152x864',
-    f: '1280x960',
-    g: '1440x1050',
-    h: '1440x1080',
-    i: '1600x1200',
-    j: '1856x1392',
-    k: '1920x1440',
+    R800x600: '800x600',
+    R960x720: '960x720',
+    R1024x768: '1024x768',
+    R1152x864: '1152x864',
+    R1280x960: '1280x960',
+    R1440x1050: '1440x1050',
+    R1440x1080: '1440x1080',
+    R1600x1200: '1600x1200',
+    R1856x1392: '1856x1392',
+    R1920x1440: '1920x1440',
 
     // 16:9
-    nHD: '640x360',
-    FWVGA: '854x480',
-    qHD: '960x540',
-    WSVGA: '1024x576',
-    HD: '1280x768',
-    FWXGA: '1366x768',
-    HDPLUSS: '1600x900',
-    FULLHD: '1920x1080',
-    QHD: '2560x1440',
-    QHDPLUSS: '3200x1800',
-    FOURKUHD: '3840x2160'
-}
+    R854x480: '854x480',
+    R960x540: '960x540',
+    R1024x576: '1024x576',
+    R1280x768: '1280x768',
+    R1366x768: '1366x768',
+    R1600x900: '1600x900',
+    R1920x1080: '1920x1080',
+    R2560x1440: '2560x1440',
+    R3200x1800: '3200x1800',
+    R3840x2160: '3840x2160'
+};
 
 // default
 const appConfig = {
     startMaximized: false, // Always maximize the main (game) window
     enableSplash: true,  //Splash screen duration: 5s. The game loads in the background
     fasterSplash: false, // Splash screen duration: 2.5s
-    customResolution: resolutions.HD, // Set a custom app windowed resolution
+    customResolution: resolutions.R1280x768, // Set a custom app windowed resolution
     appTheme: 'default', // Use custom themes
     defaultGame: 'cafe', // Loads this game on launch
     enableDiscordRichPresence: true, // Enable rich presence
     updateDiscordRichPresence: true, // Update realtime the rich presence
     checkUpdates: true, // On launch the app checks the latest version. If the current version is different, the user can update the app
-    autoUpdate: false // Auto update the app, if there's a new version without asking the user
+    autoUpdate: false, // Auto update the app, if there's a new version without asking the user
+    renderEngine: 'flash',  // Set the engine to render the game ('flash' or 'ruffle'). Ruffle have some issues, already contacted a developer about the issues.
+    language: 'en-US' // App language
 }
 
 const userPath = (electron.app || electron.remote.app).getPath('userData');

@@ -1,6 +1,5 @@
 const remote = require('electron').remote;
 const { ipcRenderer } = require('electron');
-const path = require('path');
 
 const win = remote.getCurrentWindow(); /* Note this is different to the
 html global `window` variable */
@@ -9,13 +8,12 @@ const webview = document.getElementById('game');
 const app_title = document.getElementById('app-title');
 const title = document.getElementById('window-title');
 
-const { appConfig } = require('./settings');
-
-const { injectTheme } = require('./themer');
+const { appConfig } = require('../utils/settings');
+const { injectTheme } = require('../utils/themer');
+const { loadLocales, getLocalizedText } = require('../utils/locales');
+loadLocales(appConfig.language, ['common', 'menu', 'settings', 'accounts']);
 
 injectTheme(appConfig.appTheme)
-
-window.RufflePlayer = window.RufflePlayer || {};
 
 // Added check
 if (webview) {
@@ -32,7 +30,19 @@ webview.addEventListener('dom-ready', () => {
 document.onreadystatechange = (event) => {
     if (document.readyState == "complete") {
         handleWindowControls();
-    }
+
+        document.querySelectorAll('[locale]').forEach(element => {
+            const key = element.getAttribute('locale');
+
+            const localizedText = getLocalizedText(key);
+
+            if (element.hasAttribute('title')) {
+                element.title = localizedText;
+            } else {
+                element.textContent = localizedText;
+            };
+        });
+    };
 };
 
 window.onbeforeunload = (event) => {
